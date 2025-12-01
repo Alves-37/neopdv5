@@ -14,6 +14,17 @@ export default function Dashboard() {
   })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [estabNome, setEstabNome] = useState('')
+
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search)
+      const nome = params.get('launcher_estab_nome') || ''
+      if (nome) setEstabNome(nome)
+    } catch {
+      // ignore
+    }
+  }, [])
 
   const fmtMT = (v) => {
     if (v === null || v === undefined) return '—'
@@ -219,7 +230,12 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Dashboard</h1>
+        <div className="flex flex-col">
+          <h1 className="text-2xl font-bold">Dashboard</h1>
+          {estabNome && (
+            <span className="text-xs text-gray-500 mt-0.5">{estabNome}</span>
+          )}
+        </div>
         <div className="hidden sm:flex items-center gap-2">
           <a href="#" className="btn-outline">Exportar</a>
           <a href="#" className="btn-primary">Nova venda</a>
