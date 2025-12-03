@@ -24,13 +24,12 @@ export default function Navbar() {
         <div className="flex h-14 items-center justify-between">
           {/* Brand */}
           <div className="flex items-center min-w-0">
-            <Link to="/" className={`text-lg font-bold text-white whitespace-nowrap rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-primary-700`}>
-              Bem vindo(a)
+            <Link
+              to="/"
+              className={`text-lg font-bold text-white whitespace-nowrap rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-primary-700`}
+            >
+              {`Bem vindo(a) ${user?.nome || user?.usuario || ''}`}
             </Link>
-            {/* Nome do usuário ao lado da marca */}
-            <span className="ml-2 text-sm text-white/80 truncate max-w-[140px] font-bold">
-              {user?.nome || user?.usuario || ''}
-            </span>
           </div>
 
           {/* Desktop nav */}
