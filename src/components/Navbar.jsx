@@ -10,13 +10,27 @@ export default function Navbar() {
   const linkBase = 'px-2 py-1 rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-primary-700 hover:bg-white/10'
   const navItem = ({ isActive }) => `${linkBase} ${isActive ? 'text-white font-semibold' : 'text-white/80 hover:text-white'}`
   const [open, setOpen] = useState(false)
-  const [estabNome, setEstabNome] = useState('')
+  const [estabNome, setEstabNome] = useState(() => {
+    if (typeof window === 'undefined') return ''
+    try {
+      return localStorage.getItem('estab_nome') || ''
+    } catch {
+      return ''
+    }
+  })
 
   useEffect(() => {
     try {
       const params = new URLSearchParams(window.location.search)
       const nome = params.get('launcher_estab_nome') || ''
-      if (nome) setEstabNome(nome)
+      if (nome) {
+        setEstabNome(nome)
+        try {
+          localStorage.setItem('estab_nome', nome)
+        } catch {
+          // ignore
+        }
+      }
     } catch {
       // ignore
     }
