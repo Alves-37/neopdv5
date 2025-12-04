@@ -62,18 +62,30 @@ export default function ProductForm({ initial, onSubmit, onCancel, submitting })
     if (!String(form.categoria_id || '').trim()) { alert('Categoria é obrigatória'); return }
 
     const unidade = form.venda_por_peso ? 'kg' : 'un'
+
+    // Detectar se a categoria selecionada é "Serviços" (id/nome)
+    const catSelecionada = categorias.find((c) => String(c.id ?? c.uuid ?? '') === String(form.categoria_id ?? ''))
+    const nomeCat = (catSelecionada?.nome || '').toLowerCase()
+    const isServicos = nomeCat === 'serviços' || nomeCat === 'servicos'
+
     const payload = {
       ...form,
       preco_venda: Number(form.preco_venda || 0),
-      preco_custo: form.preco_custo === '' ? null : Number(form.preco_custo),
-      estoque: form.estoque === '' ? null : Number(form.estoque),
-      estoque_minimo: form.estoque_minimo === '' ? null : Number(form.estoque_minimo),
+      // Para serviços, não controlar custo/estoque: enviar sempre null
+      preco_custo: isServicos ? null : (form.preco_custo === '' ? null : Number(form.preco_custo)),
+      estoque: isServicos ? null : (form.estoque === '' ? null : Number(form.estoque)),
+      estoque_minimo: isServicos ? null : (form.estoque_minimo === '' ? null : Number(form.estoque_minimo)),
       categoria_id: form.categoria_id === '' ? null : form.categoria_id,
       unidade_medida: unidade,
       taxa_iva: Number(form.taxa_iva || 0),
     }
     onSubmit?.(payload)
   }
+
+  // Detectar se a categoria atual é "Serviços" para controlar UI (desabilitar campos)
+  const catSelecionada = categorias.find((c) => String(c.id ?? c.uuid ?? '') === String(form.categoria_id ?? ''))
+  const nomeCat = (catSelecionada?.nome || '').toLowerCase()
+  const isServicos = nomeCat === 'serviços' || nomeCat === 'servicos'
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -88,7 +100,27 @@ export default function ProductForm({ initial, onSubmit, onCancel, submitting })
           {categoriasErro ? (
             <input className="input w-full" value={form.categoria_id} onChange={e => update('categoria_id', e.target.value)} placeholder="Ex.: Mercearia" required />
           ) : (
-            <select className="input w-full" value={form.categoria_id} onChange={e => update('categoria_id', e.target.value)} required>
+            <select
+              className="input w-full"
+              value={form.categoria_id}
+              onChange={e => {
+                const v = e.target.value
+                setForm(prev => {
+                  const next = { ...prev, categoria_id: v }
+                  const catSel = categorias.find((c) => String(c.id ?? c.uuid ?? '') === String(v))
+                  const nome = (catSel?.nome || '').toLowerCase()
+                  const isServ = nome === 'serviços' || nome === 'servicos'
+                  if (isServ) {
+                    // Para serviços, limpar custo/estoque para alinhar com PDV3
+                    next.preco_custo = ''
+                    next.estoque = ''
+                    next.estoque_minimo = ''
+                  }
+                  return next
+                })
+              }}
+              required
+            >
               <option value="">Selecione uma categoria</option>
               {categorias.map((c) => (
                 <option key={c.id || c.uuid || c.nome} value={c.id || c.uuid || ''}>{c.nome || c.descricao || c.id}</option>
@@ -119,6 +151,7 @@ export default function ProductForm({ initial, onSubmit, onCancel, submitting })
             value={form.preco_custo}
             onChange={e => update('preco_custo', e.target.value)}
             placeholder="0.00"
+            disabled={isServicos}
           />
         </div>
         <div>
@@ -154,6 +187,7 @@ export default function ProductForm({ initial, onSubmit, onCancel, submitting })
             value={form.estoque}
             onChange={e => update('estoque', e.target.value)}
             placeholder={form.venda_por_peso ? 'Ex.: 25.5' : 'Ex.: 10'}
+            disabled={isServicos}
           />
         </div>
         <div>
@@ -164,6 +198,7 @@ export default function ProductForm({ initial, onSubmit, onCancel, submitting })
             value={form.estoque_minimo}
             onChange={e => update('estoque_minimo', e.target.value)}
             placeholder="Ex.: 5"
+            disabled={isServicos}
           />
         </div>
       </div>
