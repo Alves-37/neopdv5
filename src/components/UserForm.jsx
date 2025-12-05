@@ -10,6 +10,7 @@ export default function UserForm({ initial, onSubmit, onCancel, submitting }) {
     salario: '',
     pode_abastecer: false,
     pode_gerenciar_despesas: false,
+    pode_fazer_devolucao: false,
   })
 
   useEffect(() => {
@@ -23,6 +24,7 @@ export default function UserForm({ initial, onSubmit, onCancel, submitting }) {
         salario: initial.salario ?? '',
         pode_abastecer: Boolean(initial.pode_abastecer),
         pode_gerenciar_despesas: Boolean(initial.pode_gerenciar_despesas),
+        pode_fazer_devolucao: Boolean(initial.pode_fazer_devolucao),
       })
     }
   }, [initial])
@@ -44,6 +46,7 @@ export default function UserForm({ initial, onSubmit, onCancel, submitting }) {
       ...(form.salario !== '' ? { salario: Number(form.salario) } : {}),
       pode_abastecer: Boolean(form.pode_abastecer),
       pode_gerenciar_despesas: Boolean(form.pode_gerenciar_despesas),
+      pode_fazer_devolucao: Boolean(form.pode_fazer_devolucao),
     }
 
     let payload = { ...base }
@@ -97,6 +100,10 @@ export default function UserForm({ initial, onSubmit, onCancel, submitting }) {
           <label className="inline-flex items-center gap-2">
             <input type="checkbox" className="checkbox" checked={form.pode_gerenciar_despesas} onChange={e => update('pode_gerenciar_despesas', e.target.checked)} />
             <span>Pode gerenciar despesas</span>
+          </label>
+          <label className="inline-flex items-center gap-2">
+            <input type="checkbox" className="checkbox" checked={form.pode_fazer_devolucao} onChange={e => update('pode_fazer_devolucao', e.target.checked)} />
+            <span>Pode fazer devoluções</span>
           </label>
         </div>
       </div>
