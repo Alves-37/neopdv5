@@ -450,7 +450,7 @@ export default function Abastecimentos() {
                   className="text-primary-600 hover:text-primary-800"
                   title="Ver detalhes"
                 >
-                  <FiInfo className="w-5 h-5" />
+                  <span>Detalhes</span>
                 </button>
               </div>
               
@@ -528,10 +528,10 @@ export default function Abastecimentos() {
                 </h3>
                 <button
                   type="button"
-                  className="text-gray-400 hover:text-gray-500"
+                  className="px-3 py-1 text-sm text-gray-700 bg-gray-100 rounded hover:bg-gray-200"
                   onClick={() => setSelectedItem(null)}
                 >
-                  <FiX className="h-6 w-6" />
+                  Fechar
                 </button>
               </div>
               
