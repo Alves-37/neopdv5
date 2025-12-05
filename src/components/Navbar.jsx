@@ -53,7 +53,7 @@ export default function Navbar() {
               to="/"
               className={`text-lg font-bold text-white whitespace-nowrap rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-primary-700`}
             >
-              {`Bem vindo(a) ${estabNome || user?.nome || user?.usuario || ''}`}
+              {`${estabNome || user?.nome || user?.usuario || ''}`}
             </Link>
           </div>
 
