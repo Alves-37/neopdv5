@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
 import api from '../services/api'
-import { FiInfo, FiDownload, FiPrinter, FiSearch, FiFilter, FiX, FiChevronDown, FiChevronUp } from 'react-icons/fi'
 
 function Modal({ isOpen, onClose, children }) {
   if (!isOpen) return null
@@ -224,27 +223,26 @@ export default function Abastecimentos() {
           <button 
             type="button" 
             onClick={() => setShowFilters(!showFilters)}
-            className="p-2 rounded-lg bg-white border border-gray-300 md:hidden"
+            className="px-3 py-2 text-sm text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
             aria-label="Filtros"
           >
-            <FiFilter className="w-5 h-5" />
+            {showFilters ? 'Ocultar Filtros' : 'Mostrar Filtros'}
           </button>
           <div className="hidden md:flex items-center gap-2">
             <button 
               type="button" 
               onClick={exportCSV}
-              className="p-2 rounded-lg bg-white border border-gray-300"
+              className="px-3 py-2 text-sm text-green-600 bg-green-100 rounded-md hover:bg-green-200"
               title="Exportar CSV"
             >
-              <FiDownload className="w-5 h-5" />
+              Exportar CSV
             </button>
             <button 
               type="button" 
               onClick={exportPDF}
-              className="p-2 rounded-lg bg-white border border-gray-300"
-              title="Exportar PDF"
+              className="px-4 py-2 text-sm text-white bg-blue-600 rounded-md hover:bg-blue-700"
             >
-              <FiPrinter className="w-5 h-5" />
+              Imprimir
             </button>
           </div>
         </div>
@@ -293,7 +291,7 @@ export default function Abastecimentos() {
                       onClick={clearProduto}
                       className="p-2 bg-gray-100 border border-l-0 rounded-r-md text-gray-500 hover:bg-gray-200"
                     >
-                      <FiX className="w-4 h-4" />
+                      Limpar
                     </button>
                   )}
                 </div>
@@ -418,10 +416,10 @@ export default function Abastecimentos() {
                 <td className="px-4 py-3 text-right text-sm font-medium">
                   <button
                     onClick={() => setSelectedItem(item)}
-                    className="text-primary-600 hover:text-primary-900"
+                    className="px-2 py-1 text-sm text-blue-600 bg-blue-100 rounded hover:bg-blue-200"
                     title="Ver detalhes"
                   >
-                    <FiInfo className="w-5 h-5" />
+                    Detalhes
                   </button>
                 </td>
               </tr>
