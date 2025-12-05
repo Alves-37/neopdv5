@@ -124,6 +124,19 @@ export const api = {
 
   // Admin
   resetDadosOnline: () => request('/api/admin/reset-dados', { method: 'POST' }),
+
+  // Abastecimentos
+  getAbastecimentosHistorico: ({ data_inicial, data_final, usuario_id, produto_id, pagina = 1, limite = 50, ordenacao = 'created_at_desc' } = {}) => {
+    const qs = new URLSearchParams()
+    if (data_inicial) qs.set('data_inicial', data_inicial)
+    if (data_final) qs.set('data_final', data_final)
+    if (usuario_id) qs.set('usuario_id', usuario_id)
+    if (produto_id) qs.set('produto_id', produto_id)
+    if (pagina) qs.set('pagina', String(pagina))
+    if (limite) qs.set('limite', String(limite))
+    if (ordenacao) qs.set('ordenacao', ordenacao)
+    return request(`/api/abastecimentos/historico?${qs.toString()}`)
+  },
 };
 
 export default api;

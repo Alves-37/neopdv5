@@ -10,6 +10,7 @@ import Vendas from './pages/Vendas'
 import RelatoriosFinanceiros from './pages/RelatoriosFinanceiros'
 import Configuracoes from './pages/Configuracoes'
 import Dividas from './pages/Dividas'
+import Abastecimentos from './pages/Abastecimentos'
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
           <Route path="/usuarios" element={<Usuarios />} />
           <Route path="/clientes" element={<Clientes />} />
           <Route path="/vendas" element={<Vendas />} />
+          <Route path="/abastecimentos" element={<Abastecimentos />} />
           <Route path="/dividas" element={<Dividas />} />
           <Route path="/relatorios-financeiros" element={<RelatoriosFinanceiros />} />
           <Route path="/configuracoes" element={<Configuracoes />} />
