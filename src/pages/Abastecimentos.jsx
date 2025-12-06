@@ -405,13 +405,13 @@ export default function Abastecimentos() {
                   {Number(item.quantidade || 0).toLocaleString()}
                 </td>
                 <td className="px-4 py-3 text-right text-sm text-gray-900">
-                  R$ {formatCurrency(item.custo_unitario)}
+                  MT {formatCurrency(item.custo_unitario)}
                 </td>
                 <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
-                  R$ {formatCurrency(item.total_custo)}
+                  MT {formatCurrency(item.total_custo)}
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-900">
-                  {item.usuario_nome || '-'}
+                  {item.usuario_nome || item.usuario?.nome || item.usuario || '-'}
                 </td>
                 <td className="px-4 py-3 text-right text-sm font-medium">
                   <button
@@ -465,18 +465,18 @@ export default function Abastecimentos() {
                 </div>
                 <div>
                   <p className="text-xs text-gray-500">Custo Unit.</p>
-                  <p>R$ {formatCurrency(item.custo_unitario)}</p>
+                  <p>MT {formatCurrency(item.custo_unitario)}</p>
                 </div>
                 <div className="text-right">
                   <p className="text-xs text-gray-500">Total</p>
-                  <p className="font-medium">R$ {formatCurrency(item.total_custo)}</p>
+                  <p className="font-medium">MT {formatCurrency(item.total_custo)}</p>
                 </div>
               </div>
 
-              {item.usuario_nome && (
+              {(item.usuario_nome || item.usuario?.nome || item.usuario) && (
                 <div className="mt-2">
                   <p className="text-xs text-gray-500">Usuário</p>
-                  <p className="text-sm">{item.usuario_nome}</p>
+                  <p className="text-sm">{item.usuario_nome || item.usuario?.nome || item.usuario}</p>
                 </div>
               )}
 
@@ -556,11 +556,11 @@ export default function Abastecimentos() {
                           </div>
                           <div>
                             <dt className="text-sm font-medium text-gray-500">Custo Unitário</dt>
-                            <dd className="mt-1 text-sm text-gray-900">R$ {formatCurrency(selectedItem.custo_unitario)}</dd>
+                            <dd className="mt-1 text-sm text-gray-900">MT {formatCurrency(selectedItem.custo_unitario)}</dd>
                           </div>
                           <div>
                             <dt className="text-sm font-medium text-gray-500">Total</dt>
-                            <dd className="mt-1 text-sm font-semibold text-gray-900">R$ {formatCurrency(selectedItem.total_custo)}</dd>
+                            <dd className="mt-1 text-sm font-semibold text-gray-900">MT {formatCurrency(selectedItem.total_custo)}</dd>
                           </div>
                         </dl>
                       </div>
@@ -572,10 +572,10 @@ export default function Abastecimentos() {
                             <dt className="text-sm font-medium text-gray-500">Data</dt>
                             <dd className="mt-1 text-sm text-gray-900">{formatDate(selectedItem.created_at)}</dd>
                           </div>
-                          {selectedItem.usuario_nome && (
+                          {(selectedItem.usuario_nome || selectedItem.usuario?.nome || selectedItem.usuario) && (
                             <div>
                               <dt className="text-sm font-medium text-gray-500">Usuário</dt>
-                              <dd className="mt-1 text-sm text-gray-900">{selectedItem.usuario_nome}</dd>
+                              <dd className="mt-1 text-sm text-gray-900">{selectedItem.usuario_nome || selectedItem.usuario?.nome || selectedItem.usuario}</dd>
                             </div>
                           )}
                           {selectedItem.observacao && (
