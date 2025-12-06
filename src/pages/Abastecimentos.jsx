@@ -215,6 +215,10 @@ export default function Abastecimentos() {
     return date.toLocaleString('pt-BR')
   }
 
+  const getUsuarioNome = (obj) => {
+    return (obj && (obj.usuario_nome || obj.usuario?.nome || obj.usuario)) || '-'
+  }
+
   return (
     <div className="p-2 sm:p-4">
       <div className="flex justify-between items-center mb-4">
@@ -411,7 +415,7 @@ export default function Abastecimentos() {
                   MT {formatCurrency(item.total_custo)}
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-900">
-                  {item.usuario_nome || item.usuario?.nome || item.usuario || '-'}
+                  {getUsuarioNome(item)}
                 </td>
                 <td className="px-4 py-3 text-right text-sm font-medium">
                   <button
@@ -475,7 +479,7 @@ export default function Abastecimentos() {
 
               <div className="mt-2">
                 <p className="text-xs text-gray-500">Usuário</p>
-                <p className="text-sm">{item.usuario_nome || item.usuario?.nome || item.usuario || '-'}</p>
+                <p className="text-sm">{getUsuarioNome(item)}</p>
               </div>
 
               {item.observacao && (
@@ -572,7 +576,7 @@ export default function Abastecimentos() {
                           </div>
                           <div>
                             <dt className="text-sm font-medium text-gray-500">Usuário</dt>
-                            <dd className="mt-1 text-sm text-gray-900">{selectedItem.usuario_nome || selectedItem.usuario?.nome || selectedItem.usuario || '-'}</dd>
+                            <dd className="mt-1 text-sm text-gray-900">{getUsuarioNome(selectedItem)}</dd>
                           </div>
                           {selectedItem.observacao && (
                             <div>
