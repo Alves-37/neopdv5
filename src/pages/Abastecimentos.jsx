@@ -473,12 +473,10 @@ export default function Abastecimentos() {
                 </div>
               </div>
 
-              {(item.usuario_nome || item.usuario?.nome || item.usuario) && (
-                <div className="mt-2">
-                  <p className="text-xs text-gray-500">Usuário</p>
-                  <p className="text-sm">{item.usuario_nome || item.usuario?.nome || item.usuario}</p>
-                </div>
-              )}
+              <div className="mt-2">
+                <p className="text-xs text-gray-500">Usuário</p>
+                <p className="text-sm">{item.usuario_nome || item.usuario?.nome || item.usuario || '-'}</p>
+              </div>
 
               {item.observacao && (
                 <div className="mt-2">
