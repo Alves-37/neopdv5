@@ -570,12 +570,10 @@ export default function Abastecimentos() {
                             <dt className="text-sm font-medium text-gray-500">Data</dt>
                             <dd className="mt-1 text-sm text-gray-900">{formatDate(selectedItem.created_at)}</dd>
                           </div>
-                          {(selectedItem.usuario_nome || selectedItem.usuario?.nome || selectedItem.usuario) && (
-                            <div>
-                              <dt className="text-sm font-medium text-gray-500">Usuário</dt>
-                              <dd className="mt-1 text-sm text-gray-900">{selectedItem.usuario_nome || selectedItem.usuario?.nome || selectedItem.usuario}</dd>
-                            </div>
-                          )}
+                          <div>
+                            <dt className="text-sm font-medium text-gray-500">Usuário</dt>
+                            <dd className="mt-1 text-sm text-gray-900">{selectedItem.usuario_nome || selectedItem.usuario?.nome || selectedItem.usuario || '-'}</dd>
+                          </div>
                           {selectedItem.observacao && (
                             <div>
                               <dt className="text-sm font-medium text-gray-500">Observação</dt>
