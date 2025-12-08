@@ -108,6 +108,20 @@ export const api = {
   },
 
   /**
+   * Lista todas as dívidas, com filtros opcionais por cliente e status.
+   */
+  getDividas: (clienteId, status) => {
+    const qs = new URLSearchParams()
+    if (clienteId) qs.set('cliente_id', clienteId)
+    if (status) qs.set('status', status)
+    const suffix = qs.toString() ? `?${qs.toString()}` : ''
+    return request(`/api/dividas/${suffix}`)
+  },
+
+  /** Obtém detalhes da dívida (inclui itens) por UUID */
+  getDivida: (dividaId) => request(`/api/dividas/id/${dividaId}`),
+
+  /**
    * Registra pagamento de uma dívida existente.
    * dividaId: UUID da dívida no backend
    * payload: { valor: number, forma_pagamento: string, usuario_id?: string(UUID) }

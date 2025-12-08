@@ -6,12 +6,19 @@ export default function Dividas() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [q, setQ] = useState('') // filtro simples por cliente/observação
+  const [showPayModal, setShowPayModal] = useState(false)
+  const [selectedDivida, setSelectedDivida] = useState(null)
+  const [showDetailModal, setShowDetailModal] = useState(false)
+  const [payAmount, setPayAmount] = useState('')
+  const [payMethod, setPayMethod] = useState('dinheiro')
+  const [paying, setPaying] = useState(false)
+  const [payError, setPayError] = useState('')
 
   async function load() {
     setLoading(true)
     setError(null)
     try {
-      const data = await api.getDividasAbertas()
+      const data = await api.getDividas()
       const arr = Array.isArray(data) ? data : (data?.items || [])
       setTodos(arr)
     } catch (e) {
@@ -88,20 +95,73 @@ export default function Dividas() {
     </div>
   )
 
-  async function handlePagar(divida) {
-    const restante = Number(divida.valor_total ?? 0) - Number(divida.valor_pago ?? 0)
+  function openPayModal(divida) {
+    const restante = Math.max(0, Number(divida.valor_total ?? 0) - Number(divida.valor_pago ?? 0))
     if (restante <= 0) return
-    if (!window.confirm(`Registrar pagamento de ${fmtMT(restante)} para esta dívida?`)) return
+    setSelectedDivida(divida)
+    setPayAmount(String(restante.toFixed(2)))
+    setPayMethod('dinheiro')
+    setPayError('')
+    setShowPayModal(true)
+  }
+
+  function closePayModal() {
+    setShowPayModal(false)
+    setSelectedDivida(null)
+    setPayAmount('')
+    setPayMethod('dinheiro')
+    setPayError('')
+  }
+
+  async function submitPayment() {
+    if (!selectedDivida) return
+    setPayError('')
+    const restante = Math.max(0, Number(selectedDivida.valor_total ?? 0) - Number(selectedDivida.valor_pago ?? 0))
+    let valor = Number(payAmount)
+    if (!isFinite(valor) || valor <= 0) {
+      setPayError('Informe um valor válido (> 0).')
+      return
+    }
+    if (valor > restante + 1e-6) {
+      setPayError(`Valor não pode exceder o restante (${fmtMT(restante)}).`)
+      return
+    }
+    setPaying(true)
     try {
-      await api.pagarDivida(divida.id, {
-        valor: restante,
-        forma_pagamento: 'dinheiro',
+      await api.pagarDivida(selectedDivida.id, {
+        valor,
+        forma_pagamento: payMethod,
         usuario_id: null,
       })
       await load()
+      closePayModal()
     } catch (e) {
-      alert(e.message || 'Falha ao registrar pagamento')
+      setPayError(e.message || 'Falha ao registrar pagamento')
+    } finally {
+      setPaying(false)
     }
+  }
+
+  async function openDetail(divida) {
+    setSelectedDivida({ ...divida, _loading: true, itens: [] })
+    setShowDetailModal(true)
+    try {
+      const detail = await api.getDivida(divida.id)
+      if (detail && detail.id === divida.id) {
+        setSelectedDivida({ ...detail, _loading: false })
+      } else if (detail) {
+        setSelectedDivida({ ...divida, ...detail, _loading: false })
+      } else {
+        setSelectedDivida({ ...divida, _loading: false })
+      }
+    } catch (e) {
+      setSelectedDivida(prev => ({ ...(prev || divida), _loading: false, _error: e.message || 'Falha ao carregar detalhes' }))
+    }
+  }
+
+  function closeDetail() {
+    setShowDetailModal(false)
+    setSelectedDivida(null)
   }
 
   return (
@@ -138,7 +198,7 @@ export default function Dividas() {
           <div className="mx-auto h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center">
             <svg className="h-6 w-6 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3h18v14H3z"/><path d="M3 9h18"/></svg>
           </div>
-          <p className="mt-3 text-gray-600">Nenhuma dívida aberta encontrada.</p>
+          <p className="mt-3 text-gray-600">Nenhuma dívida encontrada.</p>
         </div>
       )}
 
@@ -169,11 +229,12 @@ export default function Dividas() {
                     <div className="mt-0.5 text-xs text-gray-700 font-medium">Restante: {fmtMT(restante)}</div>
                   </div>
                 </div>
-                <div className="pt-2 border-t flex items-center justify-end">
+                <div className="pt-2 border-t flex items-center justify-end gap-2">
+                  <button className="btn-secondary text-xs px-3 py-1" onClick={() => openDetail(d)}>Ver detalhes</button>
                   <button
                     className="btn-primary text-xs px-3 py-1 disabled:opacity-50"
                     disabled={restante <= 0}
-                    onClick={() => handlePagar(d)}
+                    onClick={() => openPayModal(d)}
                   >
                     Registrar pagamento
                   </button>
@@ -181,6 +242,95 @@ export default function Dividas() {
               </div>
             )
           })}
+        </div>
+      )}
+
+      {showPayModal && selectedDivida && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="bg-white rounded shadow-lg w-full max-w-sm p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Registrar pagamento</h2>
+              <button className="text-gray-500 hover:text-gray-700" onClick={closePayModal} disabled={paying}>✕</button>
+            </div>
+            <div className="text-sm text-gray-600">
+              <div>Cliente: <b>{selectedDivida.cliente_nome || '—'}</b></div>
+              <div>Total: <b>{fmtMT(selectedDivida.valor_total)}</b></div>
+              <div>Pago: <b>{fmtMT(selectedDivida.valor_pago)}</b></div>
+              <div>Restante: <b>{fmtMT(Math.max(0, Number(selectedDivida.valor_total ?? 0) - Number(selectedDivida.valor_pago ?? 0)))}</b></div>
+            </div>
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">Valor a pagar</label>
+              <input type="number" step="0.01" min="0" className="input w-full" value={payAmount} onChange={e => setPayAmount(e.target.value)} disabled={paying} />
+            </div>
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">Forma de pagamento</label>
+              <select className="input w-full" value={payMethod} onChange={e => setPayMethod(e.target.value)} disabled={paying}>
+                <option value="dinheiro">Dinheiro</option>
+                <option value="mpesa">M-Pesa</option>
+                <option value="emola">e-Mola</option>
+                <option value="transferencia">Transferência</option>
+                <option value="pos">POS</option>
+              </select>
+            </div>
+            {payError && <div className="text-sm text-red-600">{payError}</div>}
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <button className="btn-secondary px-3 py-1" onClick={closePayModal} disabled={paying}>Cancelar</button>
+              <button className="btn-primary px-3 py-1" onClick={submitPayment} disabled={paying}>Confirmar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showDetailModal && selectedDivida && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 p-4">
+          <div className="bg-white rounded shadow-lg w-full max-w-md p-5 space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Detalhes da dívida</h2>
+              <button className="text-gray-500 hover:text-gray-700" onClick={closeDetail}>✕</button>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700">
+              <div><span className="text-gray-500">ID Local:</span> <b>{selectedDivida.id_local ?? '—'}</b></div>
+              <div><span className="text-gray-500">UUID:</span> <b className="break-all">{selectedDivida.id || '—'}</b></div>
+              <div className="sm:col-span-2"><span className="text-gray-500">Cliente:</span> <b>{selectedDivida.cliente_nome || '—'}</b></div>
+              <div><span className="text-gray-500">Data:</span> <b>{fmtData(selectedDivida.data_divida)}</b></div>
+              <div><span className="text-gray-500">Status:</span> <b>{selectedDivida.status}</b></div>
+              <div><span className="text-gray-500">Total:</span> <b>{fmtMT(selectedDivida.valor_total)}</b></div>
+              <div><span className="text-gray-500">Pago:</span> <b>{fmtMT(selectedDivida.valor_pago)}</b></div>
+              <div className="sm:col-span-2"><span className="text-gray-500">Observação:</span> <div className="mt-1 whitespace-pre-wrap break-words">{selectedDivida.observacao || '—'}</div></div>
+            </div>
+            <div className="pt-2 border-t">
+              <h3 className="font-semibold mb-2">Itens</h3>
+              {selectedDivida._loading && <div className="text-sm text-gray-500">Carregando itens…</div>}
+              {selectedDivida._error && <div className="text-sm text-red-600">{selectedDivida._error}</div>}
+              {!selectedDivida._loading && Array.isArray(selectedDivida.itens) && selectedDivida.itens.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="text-left text-gray-500">
+                        <th className="py-1 pr-2">Produto</th>
+                        <th className="py-1 pr-2">Qtd</th>
+                        <th className="py-1 pr-2">Preço</th>
+                        <th className="py-1 pr-2">Subtotal</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {selectedDivida.itens.map((it, idx) => (
+                        <tr key={idx} className="border-t">
+                          <td className="py-1 pr-2 break-words">{it.produto_nome || it.produto_id || '—'}</td>
+                          <td className="py-1 pr-2">{Number(it.quantidade ?? 0)}</td>
+                          <td className="py-1 pr-2">{fmtMT(it.preco_unitario)}</td>
+                          <td className="py-1 pr-2">{fmtMT(it.subtotal)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (!selectedDivida._loading && <div className="text-sm text-gray-500">Sem itens.</div>)}
+            </div>
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <button className="btn-secondary px-3 py-1" onClick={closeDetail}>Fechar</button>
+            </div>
+          </div>
         </div>
       )}
     </div>
